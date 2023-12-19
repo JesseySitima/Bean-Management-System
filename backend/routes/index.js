@@ -7,9 +7,10 @@ import { checkAdminRole } from "../middleware/CheckRoles.js";
 import { createDoctor, getDoctors, countDoctors, getDoctorById, updateDoctor, deleteDoctor, getRecentDoctors } from "../controllers/Doctors.js";
 import { getDepartments } from "../controllers/Departments.js";
 import { getAppointments, createAppointment, getAppointmentById, updateAppointment, deleteAppointment, getRecentAppointments, countAppointments, countActiveAppointments, countCancelledAppointments, countCompletedAppointments, } from '../controllers/Appointments.js';
-import { getMedicalRecords, createMedicalRecord, getMedicalRecordById, updateMedicalRecord, deleteMedicalRecord } from '../controllers/MedicalRecords.js';
+import { getMedicalRecords, createMedicalRecord, getMedicalRecordById, updateMedicalRecord, deleteMedicalRecord, getMedicalRecordsByPatientID } from '../controllers/MedicalRecords.js';
+import { createPatientVisit, getPatientVisits, getPatientVisitById, updatePatientVisit, deletePatientVisit, getRecentPatientVisits } from '../controllers/PatientVisit.js';
+import { getDiagnoses, createDiagnosis, getDiagnosisById, updateDiagnosis, deleteDiagnosis, } from '../controllers/Diagnosis.js'; 
 
- 
 const router = express.Router();
  
 router.get('/users', verifyToken, getUsers);
@@ -61,7 +62,23 @@ router.get('/medical-records', getMedicalRecords); // Get all medical records
 router.get('/medical-records/:id', getMedicalRecordById); // Get a specific medical record by ID
 router.put('/medical-records/:id', updateMedicalRecord); // Update a specific medical record by ID
 router.delete('/medical-records/:id', deleteMedicalRecord); // Delete a specific medical record by ID
+router.get('/patientRecord/:patientID', getMedicalRecordsByPatientID);
 
+//Route for patient visits
+router.post('/patient/visits', createPatientVisit);
+router.get('/patient/visits', getPatientVisits);
+router.get('/recentPatientVisits', getRecentPatientVisits);
+router.get('/patient/visits/:visitId', getPatientVisitById);
+router.put('/patient/visits/:visitId', updatePatientVisit);
+router.delete('/patient/visits/:visitId', deletePatientVisit);
+
+
+// Routes for diagnoses
+router.get('/diagnoses', getDiagnoses);
+router.post('/diagnoses', createDiagnosis);
+router.get('/diagnoses/:id', getDiagnosisById);
+router.put('/diagnoses/:id', updateDiagnosis);
+router.delete('/diagnoses/:id', deleteDiagnosis);
 
 
 export default router;

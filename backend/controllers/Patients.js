@@ -1,11 +1,14 @@
 import Patients from "../models/PatientModel.js";
+import multer from 'multer';
+import path from 'path';
 
 export const getPatients = async (req, res) => {
     try {
         const patients = await Patients.findAll({
-            attributes: ['id', 'firstName', 'lastName', 'middleName', 'gender', 'dateOfBirth', 'phoneNumber', 'address', 'createdAt'],
+            attributes: ['id', 'firstName', 'lastName', 'middleName', 'gender', 'dateOfBirth', 'phoneNumber', 'address', 'profilePicture', 'createdAt'],
             order: [['createdAt', 'DESC']],
         });
+        console.log(patients);
         res.json(patients);
     } catch (error) {
         console.log(error);
@@ -41,26 +44,66 @@ export const countPatients = async (req, res) => {
     }
 };
 
-export const createPatient = async (req, res) => {
-    const { firstName, lastName, gender, dateOfBirth, phoneNumber, address, middleName } = req.body;
+// Multer storage configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads'); // Set the destination folder where uploaded files will be stored
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // Set the file name and extension
+    },
+  });
+  
+  // File upload middleware
+  const upload = multer({
+    storage,
+    limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size (optional)
+    fileFilter: (req, file, cb) => {
+      const filetypes = /jpeg|jpg|png|gif/; // Define accepted file types
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = filetypes.test(file.mimetype);
+      if (mimetype && extname) {
+        return cb(null, true);
+      } else {
+        cb('Error: Images only!');
+      }
+    },
+  }).single('profilePicture'); // 'profilePicture' should match the name attribute in your form for file upload
+  
 
-    try {
+  export const createPatient = async (req, res) => {
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ msg: err });
+      }
+  
+      const { firstName, lastName, gender, dateOfBirth, phoneNumber, address, middleName } = req.body;
+  
+      try {
+        let profilePicture = ''; // Initialize profilePicture variable
+  
+        if (req.file) {
+          profilePicture = req.file.path; // Get the file path of the uploaded picture
+        }
+  
         const newPatient = await Patients.create({
-            firstName,
-            lastName,
-            gender,
-            dateOfBirth,
-            phoneNumber,
-            address,
-            middleName
+          firstName,
+          lastName,
+          gender,
+          dateOfBirth,
+          phoneNumber,
+          address,
+          middleName,
+          profilePicture, // Assign the profilePicture variable to the database field
         });
-
+  
         res.status(201).json({ msg: "Patient created successfully", patient: newPatient });
-    } catch (error) {
+      } catch (error) {
         console.error(error);
         res.status(500).json({ msg: "Failed to create patient" });
-    }
-};
+      }
+    });
+  };
 
 export const getPatientById = async (req, res) => {
     const { id } = req.params;

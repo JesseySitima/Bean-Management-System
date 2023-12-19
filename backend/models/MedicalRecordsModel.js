@@ -27,8 +27,16 @@ const MedicalRecords = db.define('medical_records', {
     type: DataTypes.DATEONLY,
     allowNull: false,
   },
-  diagnosis: {
-    type: DataTypes.STRING,
+  diagnosisID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    // Add foreign key constraint to link with Diagnosis table
+    references: {
+      model: 'Diagnoses', // Assuming your Diagnosis model is named 'Diagnoses'
+      key: 'DiagnosisID',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   treatment: {
     type: DataTypes.STRING,

@@ -3,7 +3,7 @@ import MedicalRecords from "../models/MedicalRecordsModel.js";
 export const getMedicalRecords = async (req, res) => {
     try {
         const medicalRecords = await MedicalRecords.findAll({
-            attributes: ['recordID', 'patientID', 'dateRecorded', 'diagnosis', 'treatment', 'doctorID', 'notes', 'prescription', 'testResults'],
+            attributes: ['recordID', 'patientID', 'dateRecorded', 'diagnosisID', 'treatment', 'doctorID', 'notes', 'prescription', 'testResults'],
             order: [['dateRecorded', 'DESC']],
         });
         res.json(medicalRecords);
@@ -17,7 +17,7 @@ export const createMedicalRecord = async (req, res) => {
     const {
         patientID,
         dateRecorded,
-        diagnosis,
+        diagnosisID,
         treatment,
         doctorID,
         notes,
@@ -29,7 +29,7 @@ export const createMedicalRecord = async (req, res) => {
         const newMedicalRecord = await MedicalRecords.create({
             patientID,
             dateRecorded,
-            diagnosis,
+            diagnosisID,
             treatment,
             doctorID,
             notes,
@@ -64,7 +64,7 @@ export const updateMedicalRecord = async (req, res) => {
     const {
         patientID,
         dateRecorded,
-        diagnosis,
+        diagnosisID,
         treatment,
         doctorID,
         notes,
@@ -83,7 +83,7 @@ export const updateMedicalRecord = async (req, res) => {
             {
                 patientID,
                 dateRecorded,
-                diagnosis,
+                diagnosisID,
                 treatment,
                 doctorID,
                 notes,
@@ -121,3 +121,20 @@ export const deleteMedicalRecord = async (req, res) => {
         res.status(500).json({ msg: "Failed to delete medical record" });
     }
 };
+
+export const getMedicalRecordsByPatientID = async (req, res) => {
+    const { patientID } = req.params;
+
+    try {
+        const medicalRecords = await MedicalRecords.findAll({
+            where: { patientID },
+            attributes: ['recordID', 'patientID', 'dateRecorded', 'diagnosisID', 'treatment', 'doctorID', 'notes', 'prescription', 'testResults'],
+            order: [['dateRecorded', 'DESC']],
+        });
+        res.json(medicalRecords);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Server Error" });
+    }
+};
+

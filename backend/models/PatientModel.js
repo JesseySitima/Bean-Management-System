@@ -42,6 +42,10 @@ const Patients = db.define('patients', {
   address: {
     type: DataTypes.TEXT,
   },
+  profilePicture: {
+    type: DataTypes.BLOB, // Use BLOB type to store binary data (image)
+    allowNull: true, // Set to false if the picture is required for each patient
+  },
   age: {
     type: DataTypes.VIRTUAL,
     get() {
